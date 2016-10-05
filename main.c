@@ -102,11 +102,11 @@ int main(int argc, char *argv[])
     pHead = pHead->pNext;
     for (int i = 0; i < THREAD_NUM; i++) {
         if (i == 0) {
-            pHead = app[i]->pHead->pNext;
+            pHead = app[i]->pHead;
             dprintf("Connect %d head string %s %p\n", i,
                     app[i]->pHead->pNext->lastName, app[i]->ptr);
         } else {
-            etmp->pNext = app[i]->pHead->pNext;
+            etmp->pNext = app[i]->pHead;
             dprintf("Connect %d head string %s %p\n", i,
                     app[i]->pHead->pNext->lastName, app[i]->ptr);
         }
@@ -132,6 +132,9 @@ int main(int argc, char *argv[])
     clock_gettime(CLOCK_REALTIME, &end);
     cpu_time1 = diff_in_second(start, end);
 #endif
+
+
+
 
 #ifndef OPT
     /* close file as soon as possible */
@@ -168,6 +171,11 @@ int main(int argc, char *argv[])
 
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
+
+
+#ifdef OPT
+//    show_entry(e);
+#endif
 
 #ifndef OPT
     if (pHead->pNext) free(pHead->pNext);
