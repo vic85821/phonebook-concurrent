@@ -133,9 +133,6 @@ int main(int argc, char *argv[])
     cpu_time1 = diff_in_second(start, end);
 #endif
 
-
-
-
 #ifndef OPT
     /* close file as soon as possible */
     fclose(fp);
@@ -173,8 +170,8 @@ int main(int argc, char *argv[])
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
 
-#ifdef OPT
-//    show_entry(e);
+#ifdef OPT_VORIFY
+    show_entry(e);
 #endif
 
 #ifndef OPT
