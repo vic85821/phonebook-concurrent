@@ -178,21 +178,19 @@ int main(int argc, char *argv[])
     printf("execution time of append() : %lf sec\n", cpu_time1);
     printf("execution time of findName() : %lf sec\n", cpu_time2);
 
-
 #ifdef OPT_VORIFY
     show_entry(e);
 #endif
 
-    /*
-    #ifndef OPT
-        if (pHead->pNext) free(pHead->pNext);
-        free(pHead);
-    #else
-        free(entry_pool);
-        free(tid);
-        free(app);
-        munmap(map, fs);
-    #endif
-    */
+#ifndef OPT
+    if(pHead->pNext) free(pHead->pNext);
+    free(pHead);
+#else
+    free(entry_pool);
+    free(tid);
+    free(app);
+    munmap(map, fs);
+#endif
+
     return 0;
 }
