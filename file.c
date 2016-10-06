@@ -22,8 +22,11 @@ void file_align(char *org, char *mod, int pad)
     while (fgets(rbuf, sizeof(rbuf), fd0)) {
         memset(wbuf, '\0', pad);
 
-        if ((suffix = (pad - strlen(rbuf))) != 0)
+        if ((suffix = (pad - strlen(rbuf))) != 0) {
+            if(rbuf[strlen(rbuf)-1] == '\n')
+                rbuf[strlen(rbuf)-1] = '\0';
             strcpy(wbuf, rbuf);
+        }
 
         fwrite(wbuf, pad, 1, fd1);
     }

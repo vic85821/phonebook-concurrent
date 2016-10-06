@@ -87,9 +87,11 @@ int main(int argc, char *argv[])
 
     pthread_t *tid = (pthread_t *) malloc(sizeof(pthread_t) * THREAD_NUM);
     append_a **app = (append_a **) malloc(sizeof(append_a *) * THREAD_NUM);
+    hTable **ttable = (hTable **) malloc(sizeof(hTable *) * THREAD_NUM);
+
     for (int i = 0; i < THREAD_NUM; i++)
-        app[i] = new_append_a(map + MAX_LAST_NAME_SIZE * i, map + fs, i,
-                              THREAD_NUM, entry_pool + i);
+        app[i] = new_append_a(map + MAX_LAST_NAME_SIZE * i, map + fs,
+                              ttable[i], THREAD_NUM, entry_pool + i);
 
     clock_gettime(CLOCK_REALTIME, &mid);
     for (int i = 0; i < THREAD_NUM; i++)
@@ -98,20 +100,25 @@ int main(int argc, char *argv[])
     for (int i = 0; i < THREAD_NUM; i++)
         pthread_join(tid[i], NULL);
 
-    entry *etmp;
-    pHead = pHead->pNext;
-    for (int i = 0; i < THREAD_NUM; i++) {
-        if (i == 0) {
-            pHead = app[i]->pHead;
-            dprintf("Connect %d head string %s %p\n", i,
-                    app[i]->pHead->pNext->lastName, app[i]->ptr);
-        } else {
-            etmp->pNext = app[i]->pHead;
-            dprintf("Connect %d head string %s %p\n", i,
-                    app[i]->pHead->pNext->lastName, app[i]->ptr);
-        }
+    hTable *table = (hTable *) malloc(sizeof(hTable));
+    create(table);
 
-        etmp = app[i]->pLast;
+    //pHead = pHead->pNext;
+    for (int i = 0; i < THREAD_NUM; i++) {
+        for(int j = 0; j < TABLE_SIZE; ++j) {
+            if(table->pHead[j]) {
+                table->pHead[j]->pNext = app[i]->table->pLast[j];
+                table->pHead[j] = app[i]->table->pHead[j];
+            } else
+                table->pHead[j] = app[i]->table->pLast[j];
+
+            if(!table->pLast[j])
+                table->pLast[j] = table->pHead[j];
+        }
+        dprintf("Connect %d head string %s %p\n", i,
+                app[i]->pHead->pNext->lastName, app[i]->ptr);
+
+
         dprintf("Connect %d tail string %s %p\n", i,
                 app[i]->pLast->lastName, app[i]->ptr);
         dprintf("round %d\n", i);
@@ -142,7 +149,9 @@ int main(int argc, char *argv[])
 
     /* the givn last name to find */
     char input[MAX_LAST_NAME_SIZE] = "zyxel";
-    e = pHead;
+#if defined(OPT)
+    e = table->pLast[hash_value(input)];
+#endif
 
     assert(findName(input, e) &&
            "Did you implement findName() in " IMPL "?");
@@ -174,14 +183,16 @@ int main(int argc, char *argv[])
     show_entry(e);
 #endif
 
-#ifndef OPT
-    if (pHead->pNext) free(pHead->pNext);
-    free(pHead);
-#else
-    free(entry_pool);
-    free(tid);
-    free(app);
-    munmap(map, fs);
-#endif
+    /*
+    #ifndef OPT
+        if (pHead->pNext) free(pHead->pNext);
+        free(pHead);
+    #else
+        free(entry_pool);
+        free(tid);
+        free(app);
+        munmap(map, fs);
+    #endif
+    */
     return 0;
 }
